@@ -1,0 +1,14 @@
+# Web / UI
+gradio==4.44.3
+
+# DB
+psycopg[binary]==3.2.1
+python-dotenv==1.0.1
+pgvector==0.4.1
+
+# 图像 & EXIF
+Pillow==10.4.0
+exifread==3.0.0
+
+# HTTP 请求
+requests==2.32.3
