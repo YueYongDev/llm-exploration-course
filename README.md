@@ -6,12 +6,14 @@
 
 ```
 llm-exploration-course/
-├── photo_search_1/           # 自然语言搜图 MVP 实现
+├── photo_search/             # 自然语言搜图 MVP 实现
 │   ├── common/               # 公共模块，包含核心功能实现
 │   ├── photo/                # 图像处理相关功能
-│   ├── sql/                  # 数据库 schema 定义
+│   ├── data/                 # 数据存储目录
+│   ├── photos/               # 默认图片存储目录
 │   ├── requirements.txt      # 项目依赖
 │   └── README.md             # 子项目说明
+├── video-analyzer/           # 视频内容分析模块（开发中）
 └── README.md                 # 项目根目录说明
 ```
 
@@ -21,70 +23,26 @@ llm-exploration-course/
 2. **图像向量化**：使用嵌入模型将图像和文本转换为向量表示
 3. **EXIF信息提取**：自动提取图像元数据（如拍摄时间）
 4. **向量相似度检索**：基于向量相似度进行高效图片检索
+5. **多模型支持**：支持多种视觉模型生成图像描述
+6. **HEIC格式支持**：自动检测并转换HEIC格式图片为JPEG格式进行处理
 
 ## 技术栈
 
 - Python 3.10+
-- PostgreSQL + pgvector（向量数据库）
 - Gradio（Web界面）
 - Ollama（本地模型服务）
 - Pillow（图像处理）
-- exifread（EXIF信息读取）
+- FAISS（向量索引）
+- pillow-heif（HEIC格式支持）
 
 ## 快速开始
 
-### 环境要求
-
-1. Python 3.10+
-2. PostgreSQL 15+ 并安装 `pgvector` 扩展
-3. Ollama 服务（用于运行嵌入模型）
-
-### 安装步骤
+进入 [photo_search](file:///Users/yueyong/Writing/llm-exploration-course/photo_search) 目录查看详细说明和使用方法：
 
 ```bash
-# 克隆项目
-git clone <项目地址>
-cd llm-exploration-course
-
-# 进入项目目录
-cd photo_search_1
-
-# 创建虚拟环境
-python -m venv .venv
-source .venv/bin/activate  # Linux/Mac
-# 或 .venv\Scripts\activate  # Windows
-
-# 安装依赖
-pip install -r requirements.txt
-
-# 配置环境变量
-cp .env.example .env
-# 编辑 .env 文件，配置数据库连接和照片目录
+cd photo_search
+cat README.md
 ```
-
-### 配置说明
-
-在 `.env` 文件中配置以下参数：
-
-```env
-# 数据库连接字符串
-PG_DSN=postgresql://username:password@host:port/database
-
-# 嵌入模型名称
-EMBED_MODEL=bge-m3:latest
-
-# 照片目录路径
-PHOTO_DIR=/path/to/your/photos
-```
-
-### 运行应用
-
-```bash
-cd photo_search_1
-python photo/search_app.py
-```
-
-访问 `http://127.0.0.1:7860` 使用图形界面。
 
 ## 工作原理
 
