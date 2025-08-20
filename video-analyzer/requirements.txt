@@ -1,0 +1,18 @@
+# Core dependencies
+opencv-python>=4.8.0
+numpy>=2.3.2
+torch>=2.0.0
+openai-whisper==20250625
+requests==2.32.5
+Pillow>=10.0.0
+pydub>=0.25.1
+faster-whisper==1.2.0
+python-dotenv==1.1.1
+gradio>=4.0.0
+
+# Core dependencies that were previously in CLI/API sections
+click>=8.1.0
+fastapi>=0.104.0
+uvicorn>=0.24.0
+python-multipart==0.0.20
+importlib_resources==6.5.2

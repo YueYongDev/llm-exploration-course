@@ -1,7 +1,7 @@
 # search_app.py
 import gradio as gr
 
-from photo_search.common.providers import build_records, search_topk, PHOTO_DIR, DATA_DIR
+from common.providers import build_records, search_topk, PHOTO_DIR, DATA_DIR
 
 
 def on_build(files_list, vision_model):

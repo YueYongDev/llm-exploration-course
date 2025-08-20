@@ -40,7 +40,7 @@ llm-exploration-course/
 进入 [photo_search](file:///Users/yueyong/Writing/llm-exploration-course/photo_search) 目录查看详细说明和使用方法：
 
 ```bash
-cd photo_search
+cd photo-search
 cat README.md
 ```
 

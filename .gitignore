@@ -97,7 +97,8 @@ celerybeat.pid
 *.sage.py
 
 # Environments
-photo_search/.env
+photo-search/.env
+video-analyzer/.env
 .venv
 env/
 venv/
@@ -143,5 +144,5 @@ photos.jsonl
 Thumbs.db
 
 # Project specific
-photo_search/data/
-photo_search/.env
+photo-search/data/
+photo-search/.env
