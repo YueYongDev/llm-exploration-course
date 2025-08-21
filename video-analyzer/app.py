@@ -196,18 +196,15 @@ def analyze_video(video_path):
                     "srt_content": srt_content
                 })
 
-                # 创建包含字幕的显示模板
+                # 创建包含字幕的显示模板（只显示SRT内容，添加滚动条样式）
                 current_display_template = f"""
 ## 视频分析结果
 **视频路径:** {base_result['video_path']}
 
-### 🎵 音频转录
-{base_result['transcript']['text']}
-
 ### 🎬 SRT字幕内容
-{base_result['srt_content'] if base_result['srt_content'] else '无法读取SRT文件内容'}
-
-
+<div style="max-height: 300px; overflow-y: auto; border: 1px solid #ccc; padding: 10px; background-color: #f8f9fa; border-radius: 5px;">
+<pre style="margin: 0; white-space: pre-wrap; font-family: monospace; font-size: 12px;">{base_result['srt_content'] if base_result['srt_content'] else '无法读取SRT文件内容'}</pre>
+</div>
 
 {{}}
 """
@@ -252,7 +249,8 @@ def analyze_video(video_path):
         for i, frame in enumerate(frames):
             log_message = log_collector.add_log(f"正在分析第 {i + 1}/{len(frames)} 帧")
             progress_percent = int((i / len(frames)) * 100)
-            frame_analysis_progress_output = current_display_template.format(f"🔍 **正在分析视频帧 ({i + 1}/{len(frames)}) - {progress_percent}%**")
+            frame_analysis_progress_output = current_display_template.format(
+                f"🔍 **正在分析视频帧 ({i + 1}/{len(frames)}) - {progress_percent}%**")
             yield log_message, f"正在分析第 {i + 1}/{len(frames)} 帧", frame_analysis_progress_output, {}
 
             analysis = analyzer.analyze_frame(frame)
@@ -300,15 +298,12 @@ def analyze_video(video_path):
 
 """
 
-        if result['transcript'] and result['transcript']['text']:
+        if result['srt_content']:
             output_text += f"""
-### 🎵 音频转录
-{result['transcript']['text']}
-
 ### 🎬 SRT字幕内容
-{result['srt_content'] if result['srt_content'] else '无法读取SRT文件内容'}
-
-
+<div style="max-height: 300px; overflow-y: auto; border: 1px solid #ccc; padding: 10px; background-color: #f8f9fa; border-radius: 5px;">
+<pre style="margin: 0; white-space: pre-wrap; font-family: monospace; font-size: 12px;">{result['srt_content']}</pre>
+</div>
 
 """
         else:
