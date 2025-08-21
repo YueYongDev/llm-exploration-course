@@ -207,6 +207,47 @@ class AudioProcessor:
             logger.error("Error transcribing audio: %s", e, exc_info=True)
             return None
 
+    def save_transcript_to_srt(self, transcript: AudioTranscript, srt_path: Path) -> None:
+        """
+        Save transcript to SRT format subtitle file.
+        
+        Args:
+            transcript: AudioTranscript object containing segments with timing info
+            srt_path: Path where the SRT file should be saved
+        """
+        if not transcript or not transcript.segments:
+            logger.warning("No transcript segments to save to SRT")
+            return
+
+        with open(srt_path, 'w', encoding='utf-8') as f:
+            for i, segment in enumerate(transcript.segments, 1):
+                start_time = self._seconds_to_srt_time(segment['start'])
+                end_time = self._seconds_to_srt_time(segment['end'])
+                
+                f.write(f"{i}\n")
+                f.write(f"{start_time} --> {end_time}\n")
+                f.write(f"{segment['text'].strip()}\n")
+                f.write("\n")
+
+        logger.info(f"Transcript saved to SRT file: {srt_path}")
+
+    def _seconds_to_srt_time(self, seconds: float) -> str:
+        """
+        Convert seconds to SRT time format (HH:MM:SS,mmm).
+        
+        Args:
+            seconds: Time in seconds
+            
+        Returns:
+            Time in SRT format
+        """
+        hours = int(seconds // 3600)
+        minutes = int((seconds % 3600) // 60)
+        secs = int(seconds % 60)
+        millis = int((seconds - int(seconds)) * 1000)
+        
+        return f"{hours:02d}:{minutes:02d}:{secs:02d},{millis:03d}"
+
 
 def _binary_exists(name: str) -> bool:
     """Return True if executable is available on PATH."""

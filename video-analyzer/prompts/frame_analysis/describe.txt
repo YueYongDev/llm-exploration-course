@@ -1,98 +1,100 @@
-Video Summary Instructions
-Available Materials
-Frame 1 of the video (viewable)
+视频摘要说明
+可用材料
+视频的第1帧（可查看）
 
-Available Materials
-Complete set of chronological frame descriptions from all previous viewers
+可用材料
+来自所有先前观察者的完整时间顺序帧描述集
 
 {FRAME_NOTES}
 
-Video Transcript
+视频转录
 
 {TRANSCRIPT}
 
 
 
-Your Task
-You are synthesizing multiple frame descriptions into a cohesive video summary. You have access to the first frame and detailed notes about all subsequent frames.
-Step 1: Review Process
+你的任务
+你正在将多个帧描述合成为一个连贯的视频摘要。你可以访问第一帧和所有后续帧的详细笔记。
+步骤1：审查过程
 
-First Frame Analysis
+第一帧分析
 
-Study your available frame in detail
-Note opening composition, characters, and setting
-Identify the initial tone and context
-
-
-Notes Review
-
-Read through all frame descriptions chronologically
-Mark key transitions and major developments
-Identify narrative patterns and themes
-Note any inconsistencies or gaps in descriptions
+详细研究你的可用帧
+注意开场构图、角色和场景
+识别初始语气和上下文
 
 
+笔记审查
 
-Step 2: Synthesis Guidelines
-Create your summary following this structure:
-
-Opening Description
-
-Begin with what you can directly verify from your frame
-Establish the initial setting, characters, and situation
-
-
-Narrative Development
-
-Build the story chronologically
-Connect scenes and transitions naturally
-Maintain consistent character descriptions
-Track significant object movements and changes
-Include relevant audio elements mentioned in notes
-
-
-Technical Elements
-
-Note camera movements described
-Include editing transitions
-Reference significant visual effects
-Mention notable lighting or composition changes
+按时间顺序阅读所有帧描述
+标记关键过渡和重大进展
+识别叙述模式和主题
+注意描述中的不一致或遗漏
 
 
 
-Writing Style Guidelines
+步骤2：合成指南
+按照以下结构创建你的摘要：
 
-Write in present tense
-Use clear, active voice
-Maintain objective descriptions
-Avoid speculation beyond provided notes
-Include specific details that build credibility
-Connect scenes with smooth transitions
-Maintain consistent tone throughout
+开场描述
 
-Quality Check
-Before submitting, verify:
+从你可以直接验证的内容开始
+建立初始场景、角色和情境
 
-The summary flows naturally
-No contradictions exist between sections
-All major elements from notes are included
-The narrative is coherent for someone who hasn't seen the video
-Technical terms are used correctly
-The opening matches your viewed frame
-Transitions between described frames feel natural
+
+叙述发展
+
+按时间顺序构建故事
+自然连接场景和过渡
+保持一致的角色描述
+跟踪重要的物体移动和变化
+包括笔记中提到的相关音频元素
+
+
+技术元素
+
+注意描述中的摄像机移动
+包括剪辑过渡
+参考显著的视觉效果
+提及显著的灯光或构图变化
+
+
+
+写作风格指南
+
+使用现在时
+使用清晰、主动的语态
+保持客观描述
+避免超出提供笔记的推测
+包括建立可信度的具体细节
+用流畅的过渡连接场景
+始终保持全文语气一致
+
+质量检查
+提交前，请验证：
+
+摘要自然流畅
+各部分之间不存在矛盾
+包含了笔记中的所有主要元素
+对于未观看视频的人而言，叙述是连贯的
+正确使用技术术语
+开场与你观看的帧匹配
+描述帧之间的过渡感觉自然
 
 {prompt}
 
-Format Your Summary As:
+将你的摘要格式化为：
 
 ```
-IDEO SUMMARY
-Duration: [if provided in notes]
+视频摘要
+时长：[如果笔记中提供]
 
-[Opening paragraph - based on your viewed frame]
+[开场段落 - 基于你观看的帧]
 
-[Main body - chronological progression from notes]
+[主体 - 来自笔记的按时间顺序进展]
 
-[Closing observations - final state/resolution]
+[结束观察 - 最终状态/解决方案]
 
-Note: This summary is based on direct observation of the first frame combined with detailed notes from subsequent frames.
+注意：此摘要基于对第一帧的直接观察，结合了后续帧的详细笔记。
+
+```

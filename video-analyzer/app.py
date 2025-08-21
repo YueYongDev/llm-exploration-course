@@ -1,3 +1,4 @@
+import json
 import logging
 import sys
 from datetime import datetime
@@ -63,6 +64,14 @@ def analyze_video(video_path):
         output_dir = Path("output")
         output_dir.mkdir(parents=True, exist_ok=True)
 
+        # 清空output目录中的内容
+        for item in output_dir.iterdir():
+            if item.is_file():
+                item.unlink()
+            elif item.is_dir():
+                import shutil
+                shutil.rmtree(item)
+
         # 初始化客户端
         log_message = log_collector.add_log("初始化Ollama客户端")
         yield log_message, "初始化分析组件", "🔄 正在初始化Ollama客户端...", {}
@@ -113,11 +122,32 @@ def analyze_video(video_path):
             yield log_message, "音频提取失败", "⚠️ 音频提取失败，将仅进行视频分析", {}
             audio_path = None
 
+        # 初始化基础结果结构
+        base_result = {
+            "video_path": str(video_path),
+            "transcript": None,
+            "srt_content": None
+        }
+
+        # 用于保存当前显示的内容模板
+        current_display_template = ""
+
         # 转录音频
         transcript = None
         if audio_path is None:
             log_message = log_collector.add_log("视频中未找到音频")
-            yield log_message, "视频中未找到音频", "ℹ️ 视频中未找到音频轨道", {}
+            # 输出无音频的初始结果
+            current_display_template = f"""
+## 视频分析结果
+**视频路径:** {base_result['video_path']}
+
+### ℹ️ 音频信息
+视频中未找到音频轨道
+
+{{}}
+"""
+            initial_output = current_display_template.format("🔄 **正在进行视频帧分析，请稍候...**")
+            yield log_message, "视频中未找到音频", initial_output, base_result
         else:
             log_message = log_collector.add_log("开始转录音频")
             yield log_message, "开始转录音频", "🎤 正在转录音频内容...", {}
@@ -125,14 +155,71 @@ def analyze_video(video_path):
             transcript = audio_processor.transcribe(audio_path)
             if transcript is None:
                 log_message = log_collector.add_log("无法生成可靠的转录，仅进行视频分析")
-                yield log_message, "无法生成可靠的转录", "⚠️ 无法生成可靠的转录，仅进行视频分析", {}
+                # 输出转录失败的结果
+                current_display_template = f"""
+## 视频分析结果
+**视频路径:** {base_result['video_path']}
+
+### ⚠️ 音频转录
+无法生成可靠的转录
+
+{{}}
+"""
+                failed_output = current_display_template.format("🔄 **正在进行视频帧分析，请稍候...**")
+                yield log_message, "无法生成可靠的转录", failed_output, base_result
             else:
-                log_message = log_collector.add_log("音频转录完成")
-                yield log_message, "音频转录完成", "✅ 音频转录完成", {}
+                # 保存SRT字幕文件
+                srt_path = output_dir / "transcript.srt"
+                try:
+                    audio_processor.save_transcript_to_srt(transcript, srt_path)
+                    log_message = log_collector.add_log(f"音频转录完成，SRT字幕已保存到 {srt_path}")
+                except Exception as e:
+                    logger.error(f"Error saving SRT file: {e}")
+                    log_message = log_collector.add_log("音频转录完成，但保存SRT字幕失败")
+
+                # 读取SRT文件内容用于展示
+                srt_content = None
+                if srt_path.exists():
+                    try:
+                        with open(srt_path, 'r', encoding='utf-8') as srt_file:
+                            srt_content = srt_file.read()
+                    except Exception as e:
+                        logger.error(f"Error reading SRT file: {e}")
+                        srt_content = None
+
+                # 更新结果结构
+                base_result.update({
+                    "transcript": {
+                        "text": transcript.text if transcript else None,
+                        "segments": transcript.segments if transcript else None
+                    } if transcript else None,
+                    "srt_content": srt_content
+                })
+
+                # 创建包含字幕的显示模板
+                current_display_template = f"""
+## 视频分析结果
+**视频路径:** {base_result['video_path']}
+
+### 🎵 音频转录
+{base_result['transcript']['text']}
+
+### 🎬 SRT字幕内容
+{base_result['srt_content'] if base_result['srt_content'] else '无法读取SRT文件内容'}
+
+
+
+{{}}
+"""
+
+                # 输出包含字幕的结果，提示正在进行视频分析
+                subtitle_output = current_display_template.format("🔄 **正在进行视频帧分析，请稍候...**")
+                yield log_message, "音频转录完成", subtitle_output, base_result
 
         # 提取帧
         log_message = log_collector.add_log("开始提取视频帧")
-        yield log_message, "开始提取视频帧", "🎬 正在提取关键视频帧...", {}
+        frame_progress_output = current_display_template.format("🎬 **正在提取关键视频帧...**")
+        yield log_message, "开始提取视频帧", frame_progress_output, {}
 
         processor = VideoProcessor(
             video_path,
@@ -145,11 +232,13 @@ def analyze_video(video_path):
         )
 
         log_message = log_collector.add_log(f"视频帧提取完成，共提取 {len(frames)} 帧")
-        yield log_message, f"视频帧提取完成，共提取 {len(frames)} 帧", f"✅ 视频帧提取完成，共提取 {len(frames)} 帧", {}
+        frame_extracted_output = current_display_template.format(f"✅ **视频帧提取完成，共提取 {len(frames)} 帧**")
+        yield log_message, f"视频帧提取完成，共提取 {len(frames)} 帧", frame_extracted_output, {}
 
         # 分析帧
         log_message = log_collector.add_log("开始分析视频帧")
-        yield log_message, "开始分析视频帧", "🔍 正在分析视频帧内容...", {}
+        frame_analysis_start_output = current_display_template.format("🔍 **正在分析视频帧内容...**")
+        yield log_message, "开始分析视频帧", frame_analysis_start_output, {}
 
         analyzer = VideoAnalyzer(
             client,
@@ -163,35 +252,48 @@ def analyze_video(video_path):
         for i, frame in enumerate(frames):
             log_message = log_collector.add_log(f"正在分析第 {i + 1}/{len(frames)} 帧")
             progress_percent = int((i / len(frames)) * 100)
-            yield log_message, f"正在分析第 {i + 1}/{len(frames)} 帧", f"🔍 正在分析视频帧 ({i + 1}/{len(frames)}) - {progress_percent}%", {}
+            frame_analysis_progress_output = current_display_template.format(f"🔍 **正在分析视频帧 ({i + 1}/{len(frames)}) - {progress_percent}%**")
+            yield log_message, f"正在分析第 {i + 1}/{len(frames)} 帧", frame_analysis_progress_output, {}
 
             analysis = analyzer.analyze_frame(frame)
             frame_analyses.append(analysis)
 
         log_message = log_collector.add_log("视频帧分析完成")
-        yield log_message, "视频帧分析完成", "✅ 视频帧分析完成", {}
+        frame_analysis_complete_output = current_display_template.format("✅ **视频帧分析完成**")
+        yield log_message, "视频帧分析完成", frame_analysis_complete_output, {}
 
         # 重建视频描述
         log_message = log_collector.add_log("开始生成视频描述")
-        yield log_message, "开始生成视频描述", "📝 正在生成综合视频描述...", {}
+        video_desc_start_output = current_display_template.format("📝 **正在生成综合视频描述...**")
+        yield log_message, "开始生成视频描述", video_desc_start_output, {}
 
         video_description = analyzer.reconstruct_video(frame_analyses, frames, transcript)
 
         log_message = log_collector.add_log("视频描述生成完成")
         yield log_message, "视频描述生成完成", "✅ 视频描述生成完成", {}
 
-        # 准备结果
+        # 准备完整结果
         result = {
             "video_path": str(video_path),
-            "transcript": {
-                "text": transcript.text if transcript else None,
-                "segments": transcript.segments if transcript else None
-            } if transcript else None,
+            "metadata": {
+                "model": model,
+                "frames_extracted": len(frames),
+                "audio_language": transcript.language if transcript else None,
+                "transcription_successful": transcript is not None
+            },
+            "transcript": base_result["transcript"],
+            "srt_content": base_result["srt_content"],
             "frame_analyses": frame_analyses,
             "video_description": video_description
         }
 
-        # 格式化结果展示
+        results_file = output_dir / "analysis.json"
+        with open(results_file, "w", encoding="utf-8") as f:
+            json.dump(result, f, indent=2, ensure_ascii=False)
+
+        logger.info(f"Analysis complete. Results saved to {results_file}")
+
+        # 格式化完整结果展示
         output_text = f"""
 ## 视频分析结果
 **视频路径:** {result['video_path']}
@@ -202,6 +304,17 @@ def analyze_video(video_path):
             output_text += f"""
 ### 🎵 音频转录
 {result['transcript']['text']}
+
+### 🎬 SRT字幕内容
+{result['srt_content'] if result['srt_content'] else '无法读取SRT文件内容'}
+
+
+
+"""
+        else:
+            output_text += """
+### ℹ️ 音频信息
+视频中未找到音频轨道或转录失败
 
 """
 
@@ -235,7 +348,7 @@ def run_analysis(video_path):
         yield log_message, status, result_text, result_json
 
 
-with gr.Blocks(title="Video Analyzer") as demo:
+with gr.Blocks(title="Video Analyzer", theme=gr.themes.Soft(primary_hue="gray", secondary_hue="blue")) as demo:
     gr.Markdown("# Video Analyzer")
     gr.Markdown("上传视频文件进行内容分析，包括音频转录和视觉内容理解。")
 
